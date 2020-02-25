@@ -15,6 +15,7 @@ import {
   withOpenBalances,
   withOpenFamilyTabs,
   withOpenInvestmentCards,
+  withOpenSavings,
 } from '../../hoc';
 import { colors } from '../../styles';
 import {
@@ -35,9 +36,7 @@ import { ListFooter } from '../list';
 import { UniqueTokenRow } from '../unique-token';
 import AssetListHeader from './AssetListHeader';
 import { TokenFamilyWrapPaddingTop } from '../token-family/TokenFamilyWrap';
-import withOpenSavings from '../../hoc/withOpenSavings';
-import SavingsListWrapper from '../savings/SavingsListWrapper';
-import SavingsListRow from '../savings/SavingsListRow';
+import { SavingsListWrapper, SavingsListRow } from '../savings';
 
 /* eslint-disable sort-keys */
 export const ViewTypes = {
@@ -453,6 +452,7 @@ class RecyclerAssetList extends Component {
     const {
       openFamilyTabs,
       openInvestmentCards,
+      openSavings,
       openSmallBalances,
       scrollingVelocity,
       sections,
@@ -518,16 +518,32 @@ class RecyclerAssetList extends Component {
           if (balances.data) {
             balancesHeight += CoinRow.height * (balances.data.length - 1);
             if (
-              balances.data[balances.data.length - 1].smallBalancesContainer
+              balances.data[balances.data.length - 1].smallBalancesContainer ||
+              balances.data[balances.data.length - 2].smallBalancesContainer
             ) {
-              balancesHeight += CoinDivider.height + ListFooter.height + 9;
+              balancesHeight +=
+                CoinDivider.height +
+                (balances.data[balances.data.length - 1].smallBalancesContainer
+                  ? ListFooter.height + 4
+                  : 20);
               if (openSmallBalances) {
                 balancesHeight +=
                   CoinRow.height *
-                  balances.data[balances.data.length - 1].assets.length;
+                  balances.data[
+                    balances.data.length -
+                      (balances.data[balances.data.length - 1]
+                        .smallBalancesContainer
+                        ? 1
+                        : 2)
+                  ].assets.length;
               }
-            } else {
-              balancesHeight += CoinDivider.height + ListFooter.height + 16;
+            }
+            if (balances.data[balances.data.length - 1].savingsContainer) {
+              if (openSavings) {
+                balancesHeight +=
+                  61 * balances.data[balances.data.length - 1].assets.length -
+                  1;
+              }
             }
           }
           const verticalOffset = 10;
@@ -595,15 +611,32 @@ class RecyclerAssetList extends Component {
       let balancesHeight = 0;
       if (balances.data) {
         balancesHeight += CoinRow.height * (balances.data.length - 1);
-        if (balances.data[balances.data.length - 1].smallBalancesContainer) {
-          balancesHeight += CoinDivider.height + ListFooter.height;
+        if (
+          balances.data[balances.data.length - 1].smallBalancesContainer ||
+          balances.data[balances.data.length - 2].smallBalancesContainer
+        ) {
+          balancesHeight +=
+            CoinDivider.height +
+            (balances.data[balances.data.length - 1].smallBalancesContainer
+              ? ListFooter.height + 4
+              : 20);
           if (openSmallBalances) {
             balancesHeight +=
               CoinRow.height *
-              balances.data[balances.data.length - 1].assets.length;
+              balances.data[
+                balances.data.length -
+                  (balances.data[balances.data.length - 1]
+                    .smallBalancesContainer
+                    ? 1
+                    : 2)
+              ].assets.length;
           }
-        } else {
-          balancesHeight += CoinRow.height + ListFooter.height;
+        }
+        if (balances.data[balances.data.length - 1].savingsContainer) {
+          if (openSavings) {
+            balancesHeight +=
+              61 * balances.data[balances.data.length - 1].assets.length - 1;
+          }
         }
       }
 
